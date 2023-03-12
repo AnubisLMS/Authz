@@ -12,3 +12,4 @@ release/
 .vagrant*
 Vagrantfile
 authz-broker
+main
