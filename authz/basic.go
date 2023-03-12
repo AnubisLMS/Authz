@@ -3,11 +3,6 @@ package authz
 import (
 	"encoding/json"
 	"fmt"
-	"github.com/Sirupsen/logrus"
-	logrus_syslog "github.com/Sirupsen/logrus/hooks/syslog"
-	"github.com/docker/docker/pkg/authorization"
-	"github.com/howeyc/fsnotify"
-	"github.com/twistlock/authz/core"
 	"io/ioutil"
 	"log/syslog"
 	"net/http"
@@ -16,16 +11,23 @@ import (
 	"path"
 	"regexp"
 	"strings"
+
+	"github.com/AnubisLMS/authz/core"
+	"github.com/docker/docker/pkg/authorization"
+	"github.com/howeyc/fsnotify"
+	"github.com/sirupsen/logrus"
+	logrus_syslog "github.com/sirupsen/logrus/hooks/syslog"
 )
 
 // BasicPolicy represent a single policy object that is evaluated in the authorization flow.
 // Each policy object consists of multiple users and docker actions, where each user belongs to a single policy.
 //
 // The policies are evaluated according to the following flow:
-//   For each policy object check
-//      If the user belongs to the policy
-//         If action in request in policy allow otherwise deny
-//   If no appropriate policy found, return deny
+//
+//	For each policy object check
+//	   If the user belongs to the policy
+//	      If action in request in policy allow otherwise deny
+//	If no appropriate policy found, return deny
 //
 // Remark: In basic flow, each user must have a unique policy.
 // If a user is used by more than one policy, the results may be inconsistent
