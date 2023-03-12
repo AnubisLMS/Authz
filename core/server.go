@@ -3,18 +3,19 @@ package core
 import (
 	"encoding/json"
 	"fmt"
-	"github.com/docker/docker/pkg/authorization"
-	"github.com/docker/docker/pkg/plugins"
-	"github.com/gorilla/mux"
-	"github.com/sirupsen/logrus"
 	"io/ioutil"
 	"net"
 	"net/http"
 	"os"
+
+	"github.com/docker/docker/pkg/authorization"
+	"github.com/docker/docker/pkg/plugins"
+	"github.com/gorilla/mux"
+	"github.com/sirupsen/logrus"
 )
 
 const (
-	pluginName   = "authz-broker"
+	pluginName   = "anubis-authz"
 	pluginFolder = "/run/docker/plugins"
 )
 

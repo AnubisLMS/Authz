@@ -84,7 +84,7 @@ The authorization plugin can run as a container application or as a host service
 ```
  3. Add authz broker plugin parameter to ExecStart parameter
 ```bash
-  ExecStart=/usr/bin/docker daemon -H fd:// --authorization-plugin=authz-broker
+  ExecStart=/usr/bin/docker daemon -H fd:// --authorization-plugin=anubis-authz
 ```
 ### Running as a stand-alone service
 

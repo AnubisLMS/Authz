@@ -124,7 +124,7 @@ func (f *basicAuthorizer) loadPolicies() error {
 		var policy BasicPolicy
 		err := json.Unmarshal([]byte(l), &policy)
 		if err != nil {
-			logrus.Errorf("Failed to unmarshel policy entry %q %q", l, err.Error())
+			logrus.Errorf("Failed to unmarshal policy entry %q %q", l, err.Error())
 		}
 		policies = append(policies, policy)
 	}

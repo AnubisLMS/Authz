@@ -32,7 +32,7 @@ var (
 func main() {
 
 	app := cli.NewApp()
-	app.Name = "AnubisLMS-authz"
+	app.Name = "anubis-authz"
 	app.Usage = "Authorization plugin for docker"
 	app.Version = version
 
@@ -81,7 +81,7 @@ func main() {
 
 		cli.StringFlag{
 			Name:   policyFileFlag,
-			Value:  "/var/lib/authz-broker/policy.json",
+			Value:  "authz/policy.json",
 			EnvVar: "AUTHZ-POLICY-FILE",
 			Usage:  "Defines the authz policy file for basic handler",
 		},
@@ -95,12 +95,15 @@ func main() {
 		cli.StringFlag{
 			Name:   auditorHookFlag,
 			Value:  authz.AuditHookStdout,
-			EnvVar: "AUDITOR-HOOK",
+			EnvVar: "AUDITOR_HOOK",
 			Usage:  "Defines the authz auditor hook type (log engine)",
 		},
 	}
 
-	app.Run(os.Args)
+	err := app.Run(os.Args)
+	if err != nil {
+		panic(err)
+	}
 }
 
 // initLogger initialize the logger based on the log level

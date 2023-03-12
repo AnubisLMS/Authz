@@ -37,7 +37,7 @@ func TestPolicyApply(t *testing.T) {
 
 	authorizer := NewBasicAuthZAuthorizer(&BasicAuthorizerSettings{PolicyPath: policyFileName})
 
-	assert.NoError(t, authorizer.Init(), "Initialization must be succesfull")
+	assert.NoError(t, authorizer.Init(), "Initialization must be successful")
 
 	for _, test := range tests {
 		res := authorizer.AuthZReq(&authorization.Request{RequestMethod: test.method, RequestURI: test.uri, User: test.user})

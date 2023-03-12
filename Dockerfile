@@ -1,16 +1,36 @@
-FROM alpine:3.12
-MAINTAINER Liron Levin <liron@twistlock.com>
+ARG GOLANG_VERSION="1.20"
+
+FROM golang:${GOLANG_VERSION}-alpine AS build
+
+ENV GO111MODULE=on
+WORKDIR /build
+
+COPY go.mod ./
+COPY go.sum ./
+RUN set -eux; \
+    go mod download; \
+    apk add --no-cache --purge --upgrade make
+
+COPY . .
+RUN make bin/anubis-authz
+
+FROM gcr.io/distroless/base-debian10
 
 # Indicates basic authorization is enforced
-ENV AUTHORIZER basic
+ARG AUTHORIZER=basic
 # Indicates basic auditor type is used (log to console)
-ENV AUDITOR basic
+ARG AUDITOR=basic
 # Indicates audit logs are streamed to STDOUT
-ENV AUDITOR-HOOK ""
+ARG AUDITOR_HOOK=""
+
+ENV AUTHORIZER=${AUTHORIZER}
+ENV AUDITOR=${AUDITOR}
+ENV AUDITOR_HOOK=${AUDITOR_HOOK}
 
 VOLUME /var/lib/anubis/policy.json
 VOLUME /run/docker/plugins/
 
-ADD ./bin/authz-broker  /usr/bin/authz-broker
+COPY --from=build /build/bin/anubis-authz /usr/bin/anubis-authz
 
-CMD ["/usr/bin/authz-broker"]
+USER nonroot:nonroot
+ENTRYPOINT ["/usr/bin/anubis-authz"]
