@@ -5,8 +5,8 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/AnubisLMS/authz/authz"
-	"github.com/AnubisLMS/authz/core"
+	"authz/authz"
+	"authz/core"
 
 	"github.com/sirupsen/logrus"
 	"github.com/urfave/cli"

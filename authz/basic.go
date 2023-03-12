@@ -12,7 +12,8 @@ import (
 	"regexp"
 	"strings"
 
-	"github.com/AnubisLMS/authz/core"
+	"authz/core"
+
 	"github.com/docker/docker/pkg/authorization"
 	"github.com/howeyc/fsnotify"
 	"github.com/sirupsen/logrus"
