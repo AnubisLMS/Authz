@@ -1,11 +1,11 @@
 #!/usr/bin/env bash
 
-name=twistlock_authz_broker
-cp ./twistlock_authz_broker /usr/bin/
+name=anubis_authz_broker
+cp ./anubis_authz_broker /usr/bin/
 
-cat <<SERVICE > "/lib/systemd/system/twistlock-authz.service"
+cat <<SERVICE > "/lib/systemd/system/anubis-authz.service"
 [Unit]
-Description=Twistlock docker authorization plugin
+Description=anubis docker authorization plugin
 After=syslog.target
 [Service]
 Type=simple

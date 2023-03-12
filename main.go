@@ -32,7 +32,7 @@ var (
 func main() {
 
 	app := cli.NewApp()
-	app.Name = "twistlock-authz"
+	app.Name = "AnubisLMS-authz"
 	app.Usage = "Authorization plugin for docker"
 	app.Version = version
 
