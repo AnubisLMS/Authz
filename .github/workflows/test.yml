@@ -26,7 +26,7 @@ jobs:
       run: go version
 
     - name: Build
-      run: make bin/authz-broker
+      run: make
 
     - name: Test
       run: make test
