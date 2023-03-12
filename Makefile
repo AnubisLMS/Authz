@@ -2,7 +2,8 @@ IMAGE_NAME ?= registry.digitalocean.com/anubis/authz-broker
 PACKAGES=$(shell go list ./...)
 export VERSION ?= v1.0.0
 export IMAGE_VERSION ?= $(VERSION)
-export CGO_ENABLED=0
+export CGO_ENABLED=off
+export GO111MODULE=on
 
 .PHONY: all bin/authz-broker test image clean
 
