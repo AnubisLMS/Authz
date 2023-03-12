@@ -9,12 +9,12 @@ import (
 	"authz/core"
 
 	"github.com/sirupsen/logrus"
-	"github.com/urfave/cli"
+	"github.com/urfave/cli/v2"
 )
 
 const (
 	debugFlag       = "debug"
-	authorizerFlag  = "authz-handler"
+	authorizerFlag  = "authorizer"
 	auditorFlag     = "auditor"
 	auditorHookFlag = "auditor-hook"
 	policyFileFlag  = "policy-file"
@@ -23,6 +23,9 @@ const (
 const (
 	authorizerBasic = "basic"
 	auditorBasic    = "basic"
+
+	authorizerAnubis = "anubis"
+	auditorAnubis    = "anubis"
 )
 
 var (
@@ -31,72 +34,74 @@ var (
 
 func main() {
 
-	app := cli.NewApp()
-	app.Name = "anubis-authz"
-	app.Usage = "Authorization plugin for docker"
-	app.Version = version
+	app := &cli.App{
+		Name:    "anubis-authz",
+		Usage:   "Authorization plugin for docker",
+		Version: version,
 
-	app.Action = func(c *cli.Context) {
+		Action: func(c *cli.Context) error {
 
-		initLogger(c.GlobalBool(debugFlag))
+			initLogger(c.Bool(debugFlag))
 
-		var auditor core.Auditor
-		var authZHandler core.Authorizer
+			var auditor core.Auditor
+			var authZHandler core.Authorizer
 
-		switch c.GlobalString(authorizerFlag) {
-		case authorizerBasic:
-			authZHandler = authz.NewBasicAuthZAuthorizer(&authz.BasicAuthorizerSettings{PolicyPath: c.GlobalString(policyFileFlag)})
-		default:
-			panic(fmt.Sprintf("Unknown authz handler %q", c.GlobalString(authorizerFlag)))
-		}
+			switch c.String(authorizerFlag) {
+			case authorizerBasic:
+				authZHandler = authz.NewBasicAuthZAuthorizer(&authz.BasicAuthorizerSettings{PolicyPath: c.String(policyFileFlag)})
+			case authorizerAnubis:
+				authZHandler = authz.NewAnubisAuthZAuthorizer(&authz.AnubisAuthorizerSettings{PolicyPath: c.String(policyFileFlag)})
+			default:
+				panic(fmt.Sprintf("Unknown authz handler %q", c.String(authorizerFlag)))
+			}
 
-		switch c.GlobalString(auditorFlag) {
-		case auditorBasic:
-			auditor = authz.NewBasicAuditor(&authz.BasicAuditorSettings{LogHook: c.GlobalString(auditorHookFlag)})
-		default:
-			panic(fmt.Sprintf("Unknown authz handler %q", c.GlobalString(authorizerFlag)))
-		}
+			switch c.String(auditorFlag) {
+			case auditorBasic:
+				auditor = authz.NewBasicAuditor(&authz.BasicAuditorSettings{LogHook: c.String(auditorHookFlag)})
+			default:
+				panic(fmt.Sprintf("Unknown authz handler %q", c.String(authorizerFlag)))
+			}
 
-		srv := core.NewAuthZSrv(authZHandler, auditor)
-		err := srv.Start()
-
-		if err != nil {
-			panic(err)
-		}
-	}
-
-	app.Flags = []cli.Flag{
-		cli.BoolFlag{
-			Name:   debugFlag,
-			Usage:  "Enable debug mode",
-			EnvVar: "DEBUG",
+			srv := core.NewAuthZSrv(authZHandler, auditor)
+			return srv.Start()
 		},
 
-		cli.StringFlag{
-			Name:   authorizerFlag,
-			Value:  authorizerBasic,
-			EnvVar: "AUTHORIZER",
-			Usage:  "Defines the authz handler type",
-		},
+		Flags: []cli.Flag{
+			// debug
+			&cli.BoolFlag{
+				Name:    debugFlag,
+				Usage:   "Enable debug mode",
+				EnvVars: []string{"DEBUG"},
+			},
 
-		cli.StringFlag{
-			Name:   policyFileFlag,
-			Value:  "authz/policy.json",
-			EnvVar: "AUTHZ-POLICY-FILE",
-			Usage:  "Defines the authz policy file for basic handler",
-		},
+			// policy file
+			&cli.StringFlag{
+				Name:  policyFileFlag,
+				Value: "authz/policy.json",
+				Usage: "Defines the authz policy file for basic handler",
+			},
 
-		cli.StringFlag{
-			Name:   auditorFlag,
-			Value:  auditorBasic,
-			EnvVar: "AUDITOR",
-			Usage:  "Defines the authz auditor type",
-		},
-		cli.StringFlag{
-			Name:   auditorHookFlag,
-			Value:  authz.AuditHookStdout,
-			EnvVar: "AUDITOR_HOOK",
-			Usage:  "Defines the authz auditor hook type (log engine)",
+			// authorizer
+			&cli.StringFlag{
+				Name:    authorizerFlag,
+				Value:   authorizerBasic,
+				// EnvVars: []string{"AUTHORIZER"},
+				Usage:   "Defines the authz handler type",
+			},
+
+			// auditor
+			&cli.StringFlag{
+				Name:    auditorFlag,
+				Value:   auditorBasic,
+				// EnvVars: []string{"AUDITOR"},
+				Usage:   "Defines the authz auditor type",
+			},
+			&cli.StringFlag{
+				Name:    auditorHookFlag,
+				Value:   authz.AuditHookStdout,
+				// EnvVars: []string{"AUDITOR_HOOK"},
+				Usage:   "Defines the authz auditor hook type (log engine)",
+			},
 		},
 	}
 

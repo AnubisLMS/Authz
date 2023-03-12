@@ -5,7 +5,22 @@
     "version": "0.2.0",
     "configurations": [
         {
-            "name": "main.go",
+            "name": "basic",
+            "type": "go",
+            "request": "launch",
+            "mode": "debug",
+            "program": "main.go",
+            "console": "integratedTerminal",
+            "asRoot": true,  // needed for opening socket
+            "env": {
+                "DEBUG": "1",
+                "AUTHORIZER": "basic",
+                "AUDITOR": "basic",
+                "AUDITOR-HOOK": ""
+            }
+        },
+        {
+            "name": "anubis",
             "type": "go",
             "request": "launch",
             "mode": "debug",

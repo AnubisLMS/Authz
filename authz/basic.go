@@ -33,33 +33,18 @@ import (
 // Remark: In basic flow, each user must have a unique policy.
 // If a user is used by more than one policy, the results may be inconsistent
 type BasicPolicy struct {
-	Actions []string `json:"actions"` // Actions are the docker actions (mapped to authz terminology) that are allowed according to this policy
-	// Action are are specified as regular expressions
+	Actions  []string `json:"actions"`  // Actions are the docker actions (mapped to authz terminology) that are allowed according to this policy
 	Users    []string `json:"users"`    // Users are the users for which this policy apply to
 	Name     string   `json:"name"`     // Name is the policy name
 	Readonly bool     `json:"readonly"` // Readonly indicates this policy only allow get commands
 }
-
-const (
-	// AuditHookSyslog indicates logs are streamed  to local syslog
-	AuditHookSyslog = "syslog"
-
-	// AuditHookFile indicates logs are streamed  to local syslog
-	AuditHookFile = "file"
-
-	// AuditHookStdout indicates logs are streamed to stdout
-	AuditHookStdout = ""
-)
-
-// defaultAuditLogPath is the file test hook log path
-const defaultAuditLogPath = "/var/log/authz-broker.log"
 
 type basicAuthorizer struct {
 	settings *BasicAuthorizerSettings
 	policies []BasicPolicy
 }
 
-// BasicAuthorizerSettings provides settings for the basic authoerizer flow
+// BasicAuthorizerSettings provides settings for the basic authorizer flow
 type BasicAuthorizerSettings struct {
 	PolicyPath string // PolicyPath is the path to the policy settings
 }
@@ -260,7 +245,7 @@ func (b *basicAuditor) AuditResponse(req *authorization.Request, pluginRes *auth
 func (b *basicAuditor) init() error {
 
 	if b.settings == nil {
-		return fmt.Errorf("Settings is not defeined")
+		return fmt.Errorf("Settings is not defined")
 	}
 
 	if b.logger != nil {

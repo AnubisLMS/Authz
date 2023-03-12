@@ -1,1 +1,15 @@
-{"name":"policy_1","users":["","user_1","user_2"],"actions":["container_create","version"]}
+{
+    "name":"policy_1",
+    "users":["","user_1","user_2"],
+    "actions":[
+        {
+            "name": "container_create",
+            "body": {
+                "HostConfig": {
+                    "CapAdd": null
+                }
+            }
+        },
+        {"name": "version"}
+    ]
+}
