@@ -1,5 +1,7 @@
 # AnubisLMS AuthZ Broker
 
+[![Go](https://github.com/AnubisLMS/authz/actions/workflows/test.yml/badge.svg)](https://github.com/AnubisLMS/authz/actions/workflows/test.yml)
+
 <p align="center">
   <a href="https://about.anubis-lms.io/">
     <img
