@@ -1,16 +1,19 @@
-# Twistlock AuthZ Broker
+# AnubisLMS AuthZ Broker
 
-[![Travis](https://travis-ci.org/twistlock/authz.svg)](https://travis-ci.org/twistlock/authz)
-[![GoDoc](https://img.shields.io/badge/api-Godoc-blue.svg?style=flat-square)](https://godoc.org/github.com/twistlock/authz)
-[![Go Report Card](https://goreportcard.com/badge/github.com/twistlock/authz)](https://goreportcard.com/report/github.com/twistlock/authz)
-
+<p align="center">
+  <a href="https://about.anubis-lms.io/">
+    <img
+      alt="Anubis"
+      src="https://raw.githubusercontent.com/AnubisLMS/Anubis/master/docs/design-tex/figures/anubis-icon-1.png"
+      width="300"
+    />
+  </a>
+</p>
 
  
 A basic extendable Docker [authorization plugin](https://docs.docker.com/engine/extend/plugins_authorization/) that runs directly on the host or inside a container. The framework depends on [docker authentication plugin support](https://github.com/docker/docker/pull/18514). Basic authorization is provided when Docker daemon is started with `--tlsverify` flag (username is extracted from the certificate common name).
-Provided by [Twistlock](https://www.twistlock.com).
 
-<img src="http://www.twistlock.com/wp-content/uploads/2017/11/Twistlock_Logo-Lockup_RGB.png" width="400">
-
+Provided by [AnubisLMS](https://about.anubis-lms.io).
 
 ## Basic policy enforcement 
 
@@ -40,7 +43,7 @@ type BasicPolicy struct {
 For basic authorization flows, all policies reside in a single policy file under `/var/lib/authz-broker/policy.json`. The file  is continuously monitored and no restart is required upon changes.
 The file format is [one policy JSON object per line](http://jsonlines.org/).  There should be no enclosing list or map, just one map per line.
 
-The conversation between [Docker remote API](https://docs.docker.com/engine/reference/api/docker_remote_api_v1.21/) (the URI and method that are passed Docker daemon to AuthZ plugin) to internal action parameters is defined by the [route parser](https://github.com/twistlock/authz/blob/master/core/route_parser.go).
+The conversation between [Docker remote API](https://docs.docker.com/engine/reference/api/docker_remote_api_v1.21/) (the URI and method that are passed Docker daemon to AuthZ plugin) to internal action parameters is defined by the [route parser](https://github.com/AnubisLMS/authz/blob/master/core/route_parser.go).
 All requests and their associated authorization responses are logged to the standard output. Additional hooks such as syslog and log file is also available. To add additional [logrus hooks](https://github.com/Sirupsen/logrus#hooks), see [extending the authorization plugin].
 
 ### Examples
@@ -67,9 +70,9 @@ The authorization plugin can run as a container application or as a host service
 
 ### Running inside a container 
 
- 1. Install the containerized version of the Twistlock authorization plugin: 
+ 1. Install the containerized version of the AnubisLMS authorization plugin: 
 ```bash
- $ docker run -d  --restart=always -v /var/lib/authz-broker/policy.json:/var/lib/authz-broker/policy.json -v /run/docker/plugins/:/run/docker/plugins twistlock/authz-broker
+ $ docker run -d  --restart=always -v /var/lib/authz-broker/policy.json:/var/lib/authz-broker/policy.json -v /run/docker/plugins/:/run/docker/plugins AnubisLMS/authz-broker
 ```
     For auditing using syslog hook add the following settings to the docker command:<code>-e AUDITOR-HOOK:syslog -v /dev/log:/dev/log</code>
     For auditing using file add the following settings to the docker command:<code>-e AUDITOR-HOOK:file -v PATH_TO_LOCAL_LOG_FILE:/var/log/authz.log</code>
@@ -85,8 +88,8 @@ The authorization plugin can run as a container application or as a host service
 ```
 ### Running as a stand-alone service
 
- *  Download Twistlock authZ binary (todo:link)
- *  Install Twistlock as a service 
+ *  Download AnubisLMS authZ binary (todo:link)
+ *  Install AnubisLMS as a service 
 ```bash
    $ wget xxx | sudo sh
 ```
@@ -129,6 +132,6 @@ type Auditor interface {
 
 ## Licensing
 
-Twistlock authorization plugin is licensed under the Apache License, Version 2.0.
+AnubisLMS authorization plugin is licensed under the Apache License, Version 2.0.
 
-See [LICENSE](https://github.com/twistlock/authz/blob/master/LICENSE) for the full license text.
+See [LICENSE](./LICENSE) for the full license text.

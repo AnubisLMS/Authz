@@ -166,7 +166,7 @@ func (f *basicAuthorizer) AuthZReq(authZReq *authorization.Request) *authorizati
 				for _, policyActionPattern := range policy.Actions {
 					match, err := regexp.MatchString(policyActionPattern, action)
 					if err != nil {
-						logrus.Errorf("Failed to evaulate action %q against policy %q error %q", action, policyActionPattern, err.Error())
+						logrus.Errorf("Failed to evaluate action %q against policy %q error %q", action, policyActionPattern, err.Error())
 					}
 
 					if match {
@@ -202,7 +202,7 @@ func (f *basicAuthorizer) AuthZRes(authZReq *authorization.Request) *authorizati
 	return &authorization.Response{Allow: true}
 }
 
-// basicAuditor audit requset/response directly to standard output
+// basicAuditor audit request/response directly to standard output
 type basicAuditor struct {
 	logger   *logrus.Logger
 	settings *BasicAuditorSettings
