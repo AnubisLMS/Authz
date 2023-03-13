@@ -1,5 +1,6 @@
 IMAGE_NAME ?= registry.digitalocean.com/anubis/anubis-authz
 PACKAGES=$(shell go list ./...)
+SRCS = $(shell git ls-files '*.go' | grep -v '^vendor/')
 
 export VERSION ?= v1.0.0
 export IMAGE_VERSION ?= $(VERSION)

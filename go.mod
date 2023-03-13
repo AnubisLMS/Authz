@@ -1,4 +1,4 @@
-module authz
+module github.com/AnubisLMS/authz
 
 go 1.20
 

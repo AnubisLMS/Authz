@@ -10,7 +10,7 @@ import (
 	"path"
 	"regexp"
 
-	"authz/core"
+	"github.com/AnubisLMS/authz/core"
 
 	"github.com/docker/docker/pkg/authorization"
 	"github.com/howeyc/fsnotify"

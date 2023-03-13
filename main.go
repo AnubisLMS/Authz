@@ -5,9 +5,9 @@ import (
 	"fmt"
 	"os"
 
-	"authz/authz"
-	"authz/core"
-	"authz/defaults"
+	"github.com/AnubisLMS/authz/authz"
+	"github.com/AnubisLMS/authz/core"
+	"github.com/AnubisLMS/authz/defaults"
 
 	"github.com/sirupsen/logrus"
 	"github.com/urfave/cli/v2"
