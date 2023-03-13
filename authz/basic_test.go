@@ -1,21 +1,24 @@
 package authz
 
 import (
-	"github.com/docker/docker/pkg/authorization"
-	"github.com/stretchr/testify/assert"
 	"io/ioutil"
 	"net/http"
 	"testing"
+
+	"github.com/docker/docker/pkg/authorization"
+	"github.com/stretchr/testify/assert"
 )
 
 func TestPolicyApply(t *testing.T) {
 
-	policy := `{"name":"policy_1","users":["user_1","user_2"],"actions":["container_create","docker_version", "container_start"]}
-	           {"name":"policy_2","users":["user_3","user_4"],"actions":["container_create","container_exec"]}
-	           {"name":"policy_3","users":["user_5"],"actions":["container"]}
-	           {"name":"policy_4","users":["user_6"],"actions":["container"], "readonly":true }` // User can do anything with containers
+	policy := `[
+		{"name":"policy_1","users":["user_1","user_2"],"actions":["container_create","docker_version", "container_start"]},
+		{"name":"policy_2","users":["user_3","user_4"],"actions":["container_create","container_exec"]},
+		{"name":"policy_3","users":["user_5"],"actions":["container"]},
+		{"name":"policy_4","users":["user_6"],"actions":["container"], "readonly":true }
+		]` // User can do anything with containers
 
-	const policyFileName = "/tmp/policy.json"
+	const policyFileName = "/tmp/policy.yaml"
 	err := ioutil.WriteFile(policyFileName, []byte(policy), 0755)
 	assert.NoError(t, err)
 
