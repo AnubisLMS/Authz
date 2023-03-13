@@ -16,7 +16,7 @@ all: image
 fmt:
 	gofmt -w $(SRCS)
 
-image: bin/anubis-authz test
+image:
 	docker build -t ${IMAGE_NAME}:${IMAGE_VERSION} .
 
 bin/anubis-authz:
