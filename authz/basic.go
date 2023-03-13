@@ -1,7 +1,6 @@
 package authz
 
 import (
-	"encoding/json"
 	"fmt"
 	"io/ioutil"
 	"log/syslog"
@@ -10,7 +9,6 @@ import (
 	"os"
 	"path"
 	"regexp"
-	"strings"
 
 	"authz/core"
 
@@ -18,6 +16,7 @@ import (
 	"github.com/howeyc/fsnotify"
 	"github.com/sirupsen/logrus"
 	logrus_syslog "github.com/sirupsen/logrus/hooks/syslog"
+	"gopkg.in/yaml.v3"
 )
 
 // BasicPolicy represent a single policy object that is evaluated in the authorization flow.
@@ -33,10 +32,10 @@ import (
 // Remark: In basic flow, each user must have a unique policy.
 // If a user is used by more than one policy, the results may be inconsistent
 type BasicPolicy struct {
-	Actions  []string `json:"actions"`  // Actions are the docker actions (mapped to authz terminology) that are allowed according to this policy
-	Users    []string `json:"users"`    // Users are the users for which this policy apply to
-	Name     string   `json:"name"`     // Name is the policy name
-	Readonly bool     `json:"readonly"` // Readonly indicates this policy only allow get commands
+	Actions  []string `yaml:"actions"`  // Actions are the docker actions (mapped to authz terminology) that are allowed according to this policy
+	Users    []string `yaml:"users"`    // Users are the users for which this policy apply to
+	Name     string   `yaml:"name"`     // Name is the policy name
+	Readonly bool     `yaml:"readonly"` // Readonly indicates this policy only allow get commands
 }
 
 type basicAuthorizer struct {
@@ -56,7 +55,6 @@ func NewBasicAuthZAuthorizer(settings *BasicAuthorizerSettings) core.Authorizer 
 
 // Init loads the basic authz plugin configuration from disk
 func (f *basicAuthorizer) Init() error {
-
 	err := f.loadPolicies()
 	if err != nil {
 		return err
@@ -100,34 +98,11 @@ func (f *basicAuthorizer) loadPolicies() error {
 	}
 
 	var policies []BasicPolicy
-	for _, l := range strings.Split(string(data), "\n") {
-
-		if l == "" {
-			continue
-		}
-
-		var policy BasicPolicy
-		err := json.Unmarshal([]byte(l), &policy)
-		if err != nil {
-			logrus.Errorf("Failed to unmarshal policy entry %q %q", l, err.Error())
-		}
-		policies = append(policies, policy)
-	}
+	yaml.Unmarshal(data, &policies)
 	logrus.Infof("Loaded '%d' policies", len(policies))
 
-	// Notify when user appears in duplicate policies
-	userToPolicy := make(map[string]string)
 	for _, policy := range policies {
-		for _, u := range policy.Users {
-			if userPolicy, ok := userToPolicy[u]; ok {
-				logrus.Warnf("User %q already appears in policy %q. Only single policy applies. Undefined policy behavior %q",
-					u,
-					userPolicy,
-					policy.Name)
-			}
-			userToPolicy[u] = policy.Name
-		}
-
+		logrus.Infof("Loaded %+v", policy)
 	}
 
 	f.policies = policies

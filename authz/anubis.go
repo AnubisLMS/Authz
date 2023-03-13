@@ -9,13 +9,13 @@ import (
 	"net/url"
 	"path"
 	"regexp"
-	"strings"
 
 	"authz/core"
 
 	"github.com/docker/docker/pkg/authorization"
 	"github.com/howeyc/fsnotify"
 	"github.com/sirupsen/logrus"
+	"gopkg.in/yaml.v3"
 )
 
 // AnubisPolicy represent a single policy object that is evaluated in the authorization flow.
@@ -31,13 +31,18 @@ import (
 // Remark: In anubis flow, each user must have a unique policy.
 // If a user is used by more than one policy, the results may be inconsistent
 type Action struct {
-	Name string                 `json:"name"`
-	Body map[string]interface{} `json:"body, omitempty" default:nil`
+	Name string                 `yaml:"name"`
+	Body map[string]interface{} `yaml:"body,omitempty" default:nil`
 }
 type AnubisPolicy struct {
-	Actions  []Action `json:"actions"`  // Actions are the docker actions (mapped to authz terminology) that are allowed according to this policy
-	Name     string   `json:"name"`     // Name is the policy name
-	Readonly bool     `json:"readonly"` // Readonly indicates this policy only allow get commands
+	Actions  []Action `yaml:"actions"`  // Actions are the docker actions (mapped to authz terminology) that are allowed according to this policy
+	Name     string   `yaml:"name"`     // Name is the policy name
+	Readonly bool     `yaml:"readonly"` // Readonly indicates this policy only allow get commands
+}
+
+// BasicAuthorizerSettings provides settings for the basic authorizer flow
+type AnubisAuthorizerSettings struct {
+	PolicyPath string // PolicyPath is the path to the policy settings
 }
 
 type anubisAuthorizer struct {
@@ -45,14 +50,28 @@ type anubisAuthorizer struct {
 	policies []AnubisPolicy
 }
 
-// AnubisAuthorizerSettings provides settings for the anubis authoerizer flow
-type AnubisAuthorizerSettings struct {
-	PolicyPath string // PolicyPath is the path to the policy settings
-}
-
 // NewAnubisAuthZAuthorizer creates a new anubis authorizer
 func NewAnubisAuthZAuthorizer(settings *AnubisAuthorizerSettings) core.Authorizer {
 	return &anubisAuthorizer{settings: settings}
+}
+
+func (f *anubisAuthorizer) loadPolicies() error {
+	data, err := ioutil.ReadFile(path.Join(f.settings.PolicyPath))
+
+	if err != nil {
+		return err
+	}
+
+	var policies []AnubisPolicy
+	yaml.Unmarshal(data, &policies)
+	logrus.Infof("Loaded '%d' policies", len(policies))
+
+	for _, policy := range policies {
+		logrus.Infof("Loaded %+v", policy)
+	}
+
+	f.policies = policies
+	return nil
 }
 
 // Init loads the anubis authz plugin configuration from disk
@@ -89,33 +108,6 @@ func (f *anubisAuthorizer) Init() error {
 		logrus.Errorf("Failed to start watching folder %q", err.Error())
 	}
 
-	return nil
-}
-
-func (f *anubisAuthorizer) loadPolicies() error {
-	data, err := ioutil.ReadFile(path.Join(f.settings.PolicyPath))
-
-	if err != nil {
-		return err
-	}
-
-	var policies []AnubisPolicy
-	for _, l := range strings.Split(string(data), "\n") {
-
-		if l == "" {
-			continue
-		}
-
-		var policy AnubisPolicy
-		err := json.Unmarshal([]byte(l), &policy)
-		if err != nil {
-			logrus.Errorf("Failed to unmarshal policy entry %q %q", l, err.Error())
-		}
-		policies = append(policies, policy)
-	}
-	logrus.Infof("Loaded '%d' policies", len(policies))
-
-	f.policies = policies
 	return nil
 }
 

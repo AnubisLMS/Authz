@@ -12,12 +12,8 @@
             "program": "main.go",
             "console": "integratedTerminal",
             "asRoot": true,  // needed for opening socket
-            "env": {
-                "DEBUG": "1",
-                "AUTHORIZER": "basic",
-                "AUDITOR": "basic",
-                "AUDITOR-HOOK": ""
-            }
+            "cwd": "${workspaceFolder}",
+            "args": ["--debug", "--policy", "${workspaceFolder}/authz/policy-default.json"]
         },
         {
             "name": "anubis",
@@ -27,12 +23,8 @@
             "program": "main.go",
             "console": "integratedTerminal",
             "asRoot": true,  // needed for opening socket
-            "env": {
-                "DEBUG": "1",
-                "AUTHORIZER": "basic",
-                "AUDITOR": "basic",
-                "AUDITOR-HOOK": ""
-            }
+            "cwd": "${workspaceFolder}",
+            "args": ["--debug", "--policy", "${workspaceFolder}/authz/policy-anubis.yaml", "--authorizer", "anubis"]
         }
     ]
 }

@@ -1,4 +1,4 @@
-// broker consists of the entry point for the twistlock authz broker
+// broker consists of the entry point for the AnubisLMS authz broker
 package main
 
 import (
@@ -7,59 +7,42 @@ import (
 
 	"authz/authz"
 	"authz/core"
+	"authz/defaults"
 
 	"github.com/sirupsen/logrus"
 	"github.com/urfave/cli/v2"
 )
 
-const (
-	debugFlag       = "debug"
-	authorizerFlag  = "authorizer"
-	auditorFlag     = "auditor"
-	auditorHookFlag = "auditor-hook"
-	policyFileFlag  = "policy-file"
-)
-
-const (
-	authorizerBasic = "basic"
-	auditorBasic    = "basic"
-
-	authorizerAnubis = "anubis"
-	auditorAnubis    = "anubis"
-)
-
-var (
-	version = "v1.0.0"
-)
-
 func main() {
 
 	app := &cli.App{
-		Name:    "anubis-authz",
-		Usage:   "Authorization plugin for docker",
-		Version: version,
+		Name:    defaults.AppName,
+		Usage:   defaults.AppUsage,
+		Version: defaults.AppVersion,
 
 		Action: func(c *cli.Context) error {
 
-			initLogger(c.Bool(debugFlag))
+			initLogger(c.Bool(defaults.DebugFlag))
 
 			var auditor core.Auditor
 			var authZHandler core.Authorizer
 
-			switch c.String(authorizerFlag) {
-			case authorizerBasic:
-				authZHandler = authz.NewBasicAuthZAuthorizer(&authz.BasicAuthorizerSettings{PolicyPath: c.String(policyFileFlag)})
-			case authorizerAnubis:
-				authZHandler = authz.NewAnubisAuthZAuthorizer(&authz.AnubisAuthorizerSettings{PolicyPath: c.String(policyFileFlag)})
+			// Configure authorizer
+			switch c.String(defaults.AuthorizerFlag) {
+			case defaults.AuthorizerBasic:
+				authZHandler = authz.NewBasicAuthZAuthorizer(&authz.BasicAuthorizerSettings{PolicyPath: c.String(defaults.PolicyFileFlag)})
+			case defaults.AuthorizerAnubis:
+				authZHandler = authz.NewAnubisAuthZAuthorizer(&authz.AnubisAuthorizerSettings{PolicyPath: c.String(defaults.PolicyFileFlag)})
 			default:
-				panic(fmt.Sprintf("Unknown authz handler %q", c.String(authorizerFlag)))
+				panic(fmt.Sprintf("Unknown authz handler %q", c.String(defaults.AuthorizerFlag)))
 			}
 
-			switch c.String(auditorFlag) {
-			case auditorBasic:
-				auditor = authz.NewBasicAuditor(&authz.BasicAuditorSettings{LogHook: c.String(auditorHookFlag)})
+			// Configure auditor
+			switch c.String(defaults.AuditorFlag) {
+			case defaults.AuditorBasic:
+				auditor = authz.NewBasicAuditor(&authz.BasicAuditorSettings{LogHook: c.String(defaults.AuditorHookFlag)})
 			default:
-				panic(fmt.Sprintf("Unknown authz handler %q", c.String(authorizerFlag)))
+				panic(fmt.Sprintf("Unknown authz handler %q", c.String(defaults.AuthorizerFlag)))
 			}
 
 			srv := core.NewAuthZSrv(authZHandler, auditor)
@@ -69,37 +52,37 @@ func main() {
 		Flags: []cli.Flag{
 			// debug
 			&cli.BoolFlag{
-				Name:    debugFlag,
+				Name:    defaults.DebugFlag,
 				Usage:   "Enable debug mode",
 				EnvVars: []string{"DEBUG"},
 			},
 
 			// policy file
 			&cli.StringFlag{
-				Name:  policyFileFlag,
-				Value: "authz/policy.json",
+				Name:  defaults.PolicyFileFlag,
+				Value: defaults.PolicyFileAnubis,
 				Usage: "Defines the authz policy file for basic handler",
 			},
 
 			// authorizer
 			&cli.StringFlag{
-				Name:    authorizerFlag,
-				Value:   authorizerBasic,
-				// EnvVars: []string{"AUTHORIZER"},
+				Name:    defaults.AuthorizerFlag,
+				Value:   defaults.AuthorizerAnubis,
+				EnvVars: []string{"AUTHORIZER"},
 				Usage:   "Defines the authz handler type",
 			},
 
 			// auditor
 			&cli.StringFlag{
-				Name:    auditorFlag,
-				Value:   auditorBasic,
-				// EnvVars: []string{"AUDITOR"},
+				Name:    defaults.AuditorFlag,
+				Value:   defaults.AuditorBasic,
+				EnvVars: []string{"AUDITOR"},
 				Usage:   "Defines the authz auditor type",
 			},
 			&cli.StringFlag{
-				Name:    auditorHookFlag,
+				Name:    defaults.AuditorHookFlag,
 				Value:   authz.AuditHookStdout,
-				// EnvVars: []string{"AUDITOR_HOOK"},
+				EnvVars: []string{"AUDITOR_HOOK"},
 				Usage:   "Defines the authz auditor hook type (log engine)",
 			},
 		},

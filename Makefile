@@ -27,4 +27,4 @@ test: bin/anubis-authz
 	go test -v ${PACKAGES}
 
 clean:
-	rm -rf bin/
+	rm -rf bin/ main

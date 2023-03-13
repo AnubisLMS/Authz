@@ -13,3 +13,4 @@ release/
 Vagrantfile
 authz-broker
 main
+__debug_bin
