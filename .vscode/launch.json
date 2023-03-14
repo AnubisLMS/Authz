@@ -5,17 +5,6 @@
     "version": "0.2.0",
     "configurations": [
         {
-            "name": "basic",
-            "type": "go",
-            "request": "launch",
-            "mode": "debug",
-            "program": "main.go",
-            "console": "integratedTerminal",
-            "asRoot": true,  // needed for opening socket
-            "cwd": "${workspaceFolder}",
-            "args": ["--debug", "--policy", "${workspaceFolder}/authz/policy-default.json"]
-        },
-        {
             "name": "anubis",
             "type": "go",
             "request": "launch",
@@ -25,6 +14,17 @@
             "asRoot": true,  // needed for opening socket
             "cwd": "${workspaceFolder}",
             "args": ["--debug", "--policy", "${workspaceFolder}/authz/policy-anubis.yaml", "--authorizer", "anubis"]
-        }
+        },
+        {
+            "name": "basic",
+            "type": "go",
+            "request": "launch",
+            "mode": "debug",
+            "program": "main.go",
+            "console": "integratedTerminal",
+            "asRoot": true,  // needed for opening socket
+            "cwd": "${workspaceFolder}",
+            "args": ["--debug", "--policy", "${workspaceFolder}/authz/policy-default.yaml"]
+        },
     ]
 }

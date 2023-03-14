@@ -119,6 +119,26 @@ func parseAction(authZReq *authorization.Request) (string, error) {
 	return core.ParseRoute(authZReq.RequestMethod, url.Path), nil
 }
 
+func CheckBody(authzBody map[string]interface{}, policyBody map[string]interface{}) bool {
+	for k, v := range policyBody {
+		if authzV, ok := authzBody[k]; ok {
+			switch v.(type) {
+			case map[string]interface{}:
+				check := CheckBody(authzV.(map[string]interface{}), v.(map[string]interface{}))
+				if !check {
+					return false
+				}
+			default:
+				if v != authzV {
+					return false
+				}
+
+			}
+		}
+	}
+	return true
+}
+
 func CheckPolicy(authZReq *authorization.Request, policies []AnubisPolicy, action string) (bool, string) {
 	noPolicyMsg := fmt.Sprintf("no policy applied (action: '%s')", action)
 
@@ -142,16 +162,17 @@ func CheckPolicy(authZReq *authorization.Request, policies []AnubisPolicy, actio
 				continue
 			}
 
-			// Parse the body of the statement
-			var body map[string]interface{}
-			err = json.Unmarshal(authZReq.RequestBody, &body)
-			if err != nil {
-				logrus.Errorf("Failed to evaluate json authZReq.RequestBody %q error %q", authZReq.RequestBody, err.Error())
-				return false, deniedMsg
-			}
-
 			if policyAction.Body != nil {
-
+				// Parse the body of the statement
+				var body map[string]interface{}
+				err = json.Unmarshal(authZReq.RequestBody, &body)
+				if err != nil {
+					logrus.Errorf("Failed to evaluate json authZReq.RequestBody %q error %q", authZReq.RequestBody, err.Error())
+				} else {
+					if !CheckBody(body, policyAction.Body) {
+						return false, deniedMsg
+					}
+				}
 			}
 
 			if policy.Readonly && authZReq.RequestMethod != http.MethodGet {
