@@ -27,10 +27,11 @@ ENV AUTHORIZER=${AUTHORIZER}
 ENV AUDITOR=${AUDITOR}
 ENV AUDITOR_HOOK=${AUDITOR_HOOK}
 
-VOLUME /var/lib/anubis/policy.json
+COPY authz/policy-anubis.yaml /var/lib/anubis/policy.json
 VOLUME /run/docker/plugins/
 
 COPY --from=build /build/bin/anubis-authz /usr/bin/anubis-authz
 
 USER nonroot:nonroot
 ENTRYPOINT ["/usr/bin/anubis-authz"]
+CMD ["--policy", "/var/lib/anubis/policy.json"]

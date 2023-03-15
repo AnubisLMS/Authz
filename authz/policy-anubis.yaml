@@ -6,6 +6,8 @@
     - name: container_resize
     - name: container_wait
     - name: container_start
+    - name: container_inspect
+    - name: image_create
     - name: container_create
       body:
         HostConfig:
@@ -26,9 +28,9 @@
           # Net
           PublishAllPorts: false
           NetworkMode: "default"
-          Dns: []
-          DnsOptions: []
-          DnsSearch: []
+          Dns: null
+          DnsOptions: null
+          DnsSearch: null
           ExtraHosts: null
           
           # Cgroup related
@@ -42,7 +44,7 @@
           CpuPercent: 0
           CpusetCpus: ""
           CpusetMems: ""
-          CpuPeriod: 0
+          CpuPeriods: 0
           CpuQuota: 0
           CpuRealtimePeriod: 0
           CpuRealtimeRuntime: 0

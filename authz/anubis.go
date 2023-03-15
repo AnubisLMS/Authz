@@ -1,7 +1,6 @@
 package authz
 
 import (
-	"encoding/json"
 	"errors"
 	"fmt"
 	"io/ioutil"
@@ -119,20 +118,35 @@ func parseAction(authZReq *authorization.Request) (string, error) {
 	return core.ParseRoute(authZReq.RequestMethod, url.Path), nil
 }
 
-func CheckBody(authzBody map[string]interface{}, policyBody map[string]interface{}) bool {
-	for k, v := range policyBody {
+func CheckBody(authzBody map[string]interface{}, policyBody map[string]interface{}, chain string) bool {
+	for k, policyV := range policyBody {
+
 		if authzV, ok := authzBody[k]; ok {
-			switch v.(type) {
+			switch policyV.(type) {
 			case map[string]interface{}:
-				check := CheckBody(authzV.(map[string]interface{}), v.(map[string]interface{}))
+				check := CheckBody(authzV.(map[string]interface{}), policyV.(map[string]interface{}), chain+"."+k)
 				if !check {
 					return false
 				}
 			default:
-				if v != authzV {
-					return false
+				if policyV == nil {
+					switch authzV {
+					case nil:
+						continue
+					case 0:
+						continue
+					case false:
+						continue
+					default:
+						logrus.Errorf("Failing on value not matching %s %v != %v", chain+"."+k, policyV, authzV)
+						return false
+					}
+				} else {
+					if policyV != authzV {
+						logrus.Errorf("Failing on value not matching %s %v != %v", chain+"."+k, policyV, authzV)
+						return false
+					}
 				}
-
 			}
 		}
 	}
@@ -165,11 +179,11 @@ func CheckPolicy(authZReq *authorization.Request, policies []AnubisPolicy, actio
 			if policyAction.Body != nil && authZReq.RequestMethod == http.MethodPost {
 				// Parse the body of the statement
 				var body map[string]interface{}
-				err = json.Unmarshal(authZReq.RequestBody, &body)
+				err = yaml.Unmarshal(authZReq.RequestBody, &body)
 				if err != nil {
 					logrus.Errorf("Failed to evaluate json authZReq.RequestBody %q error %q", authZReq.RequestBody, err.Error())
 				} else {
-					if !CheckBody(body, policyAction.Body) {
+					if !CheckBody(body, policyAction.Body, "") {
 						return false, deniedMsg
 					}
 				}
