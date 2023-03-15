@@ -1,11 +1,57 @@
-- name: "policy_1"
+- name: "anubis"
   actions:
-    - name: ""
     - name: version
     - name: docker_ping
     - name: container_attach
     - name: container_resize
+    - name: container_wait
+    - name: container_start
     - name: container_create
       body:
         HostConfig:
+
+          # Security related
           CapAdd: null
+          CapDrop: null
+          Privileged: false
+          SecurityOpt: null
+          Ulimits: null
+          Isolation: ""
+
+          # devices
+          Devices: []
+          VolumeDriver: ""
+          VolumesFrom: null
+
+          # Net
+          PublishAllPorts: false
+          NetworkMode: "default"
+          Dns: []
+          DnsOptions: []
+          DnsSearch: []
+          ExtraHosts: null
+          
+          # Cgroup related
+          Cgroup: ""
+          CgroupParent: ""
+          UsernsMode: ""
+
+          # CPU / Mem / IO related
+          CpuShares: 0
+          CpuCount: 0
+          CpuPercent: 0
+          CpusetCpus: ""
+          CpusetMems: ""
+          CpuPeriod: 0
+          CpuQuota: 0
+          CpuRealtimePeriod: 0
+          CpuRealtimeRuntime: 0
+          NanoCpus: 0
+          Memory: 0
+          MemoryReservations: 0
+          MemorySwap: 0
+          MemorySwappiness: -1
+          ShmSize: 0
+          OomKillDisable: false
+          IOMaximumIOps: 0
+          IOMaximumBandwidth: 0
