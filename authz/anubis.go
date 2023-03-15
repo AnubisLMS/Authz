@@ -162,7 +162,7 @@ func CheckPolicy(authZReq *authorization.Request, policies []AnubisPolicy, actio
 				continue
 			}
 
-			if policyAction.Body != nil {
+			if policyAction.Body != nil && authZReq.RequestMethod == http.MethodPost {
 				// Parse the body of the statement
 				var body map[string]interface{}
 				err = json.Unmarshal(authZReq.RequestBody, &body)
