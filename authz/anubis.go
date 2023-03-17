@@ -7,6 +7,8 @@ import (
 	"net/http"
 	"net/url"
 	"path"
+
+	"reflect"
 	"regexp"
 
 	"github.com/AnubisLMS/authz/core"
@@ -115,18 +117,20 @@ func parseAction(authZReq *authorization.Request) (string, error) {
 	if err != nil {
 		return "", errors.New(fmt.Sprintf("invalid request URI: %s", err.Error()))
 	}
+	fmt.Println("query:", url.Query())
 	return core.ParseRoute(authZReq.RequestMethod, url.Path), nil
 }
 
-func CheckBody(authzBody map[string]interface{}, policyBody map[string]interface{}, chain string) bool {
+func CheckBody(authzBody map[string]interface{}, policyBody map[string]interface{}, chain string) (bool, string) {
 	for k, policyV := range policyBody {
+		msg := chain + "." + k
 
 		if authzV, ok := authzBody[k]; ok {
 			switch policyV.(type) {
 			case map[string]interface{}:
-				check := CheckBody(authzV.(map[string]interface{}), policyV.(map[string]interface{}), chain+"."+k)
+				check, msg := CheckBody(authzV.(map[string]interface{}), policyV.(map[string]interface{}), msg)
 				if !check {
-					return false
+					return false, msg
 				}
 			default:
 				if policyV == nil {
@@ -138,19 +142,30 @@ func CheckBody(authzBody map[string]interface{}, policyBody map[string]interface
 					case false:
 						continue
 					default:
-						logrus.Errorf("Failing on value not matching %s %v != %v", chain+"."+k, policyV, authzV)
-						return false
+						rt := reflect.TypeOf(authzV)
+						switch rt.Kind() {
+						case reflect.Array, reflect.Slice:
+							l := reflect.ValueOf(authzV).Len()
+							fmt.Println("l =", l)
+							if l != 0 {
+								logrus.Errorf("Failing on value not matching %s %v != %v", msg, policyV, authzV)
+								return false, fmt.Sprintf("%s != %v", msg, policyV)
+							}
+						default:
+							logrus.Errorf("Failing on value not matching %s %v != %v", msg, policyV, authzV)
+							return false, fmt.Sprintf("%s != %v", msg, policyV)
+						}
 					}
 				} else {
 					if policyV != authzV {
-						logrus.Errorf("Failing on value not matching %s %v != %v", chain+"."+k, policyV, authzV)
-						return false
+						logrus.Errorf("Failing on value not matching %s %v != %v", msg, policyV, authzV)
+						return false, fmt.Sprintf("%s != %v", msg, policyV)
 					}
 				}
 			}
 		}
 	}
-	return true
+	return true, ""
 }
 
 func CheckPolicy(authZReq *authorization.Request, policies []AnubisPolicy, action string) (bool, string) {
@@ -160,7 +175,6 @@ func CheckPolicy(authZReq *authorization.Request, policies []AnubisPolicy, actio
 	for _, policy := range policies {
 
 		// Generate messages
-		deniedMsg := fmt.Sprintf("action '%s' denied for user '%s' by policy '%s'", action, authZReq.User, policy.Name)
 		notAllowedMsg := fmt.Sprintf("action '%s' not allowed for user '%s' by readonly policy '%s'", action, authZReq.User, policy.Name)
 		allowedMsg := fmt.Sprintf("action '%s' allowed for user '%s' by policy '%s'", action, authZReq.User, policy.Name)
 
@@ -183,7 +197,9 @@ func CheckPolicy(authZReq *authorization.Request, policies []AnubisPolicy, actio
 				if err != nil {
 					logrus.Errorf("Failed to evaluate json authZReq.RequestBody %q error %q", authZReq.RequestBody, err.Error())
 				} else {
-					if !CheckBody(body, policyAction.Body, "") {
+					check, msg := CheckBody(body, policyAction.Body, "")
+					if !check {
+						deniedMsg := fmt.Sprintf("action '%s' denied for user '%s' by policy '%s' on value '%s'", action, authZReq.User, policy.Name, msg)
 						return false, deniedMsg
 					}
 				}
@@ -203,7 +219,6 @@ func CheckPolicy(authZReq *authorization.Request, policies []AnubisPolicy, actio
 
 func (f *anubisAuthorizer) AuthZReq(authZReq *authorization.Request) *authorization.Response {
 	logrus.Debugf("Received AuthZ request, method: '%s', url: '%s'", authZReq.RequestMethod, authZReq.RequestURI)
-	logrus.Debugf("AuthZ request.RequestBody %s", authZReq.RequestBody)
 
 	// Parse the request for an action
 	action, err := parseAction(authZReq)

@@ -8,6 +8,7 @@
     - name: container_start
     - name: container_inspect
     - name: image_create
+    - name: image_build
     - name: container_create
       body:
         HostConfig:
@@ -21,13 +22,13 @@
           Isolation: ""
 
           # devices
-          Devices: []
+          Devices: null
           VolumeDriver: ""
           VolumesFrom: null
 
           # Net
-          PublishAllPorts: false
-          NetworkMode: "default"
+          PublishAllPorts: null
+          #NetworkMode: "default"
           Dns: null
           DnsOptions: null
           DnsSearch: null
@@ -54,6 +55,6 @@
           MemorySwap: 0
           MemorySwappiness: -1
           ShmSize: 0
-          OomKillDisable: false
+          OomKillDisable: null
           IOMaximumIOps: 0
           IOMaximumBandwidth: 0
