@@ -17,8 +17,15 @@ all: image
 fmt:
 	gofmt -w $(SRCS)
 
-image:
+build:
 	docker build -t ${IMAGE_NAME}:${IMAGE_VERSION} .
+	docker tag ${IMAGE_NAME}:${IMAGE_VERSION} ${IMAGE_NAME}:latest
+
+push:
+	docker push ${IMAGE_NAME}:${IMAGE_VERSION}
+	docker push ${IMAGE_NAME}:latest
+
+deploy: build push
 
 bin/anubis-authz:
 	mkdir -p bin/

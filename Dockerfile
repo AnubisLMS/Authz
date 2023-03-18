@@ -17,7 +17,7 @@ RUN make bin/anubis-authz
 FROM gcr.io/distroless/base-debian10
 
 # Indicates basic authorization is enforced
-ARG AUTHORIZER=basic
+ARG AUTHORIZER=anubis
 # Indicates basic auditor type is used (log to console)
 ARG AUDITOR=basic
 # Indicates audit logs are streamed to STDOUT
@@ -27,11 +27,11 @@ ENV AUTHORIZER=${AUTHORIZER}
 ENV AUDITOR=${AUDITOR}
 ENV AUDITOR_HOOK=${AUDITOR_HOOK}
 
-COPY authz/policy-anubis.yaml /var/lib/anubis/policy.json
+COPY authz/policy-anubis.yaml /var/lib/anubis/policy.yaml
 VOLUME /run/docker/plugins/
 
 COPY --from=build /build/bin/anubis-authz /usr/bin/anubis-authz
 
 USER nonroot:nonroot
 ENTRYPOINT ["/usr/bin/anubis-authz"]
-CMD ["--policy", "/var/lib/anubis/policy.json"]
+CMD ["--policy", "/var/lib/anubis/policy.yaml"]

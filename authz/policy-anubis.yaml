@@ -9,6 +9,7 @@
     - name: container_inspect
     - name: image_create
     - name: image_build
+    - name: container_list
     - name: container_create
       body:
         HostConfig:
