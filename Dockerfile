@@ -14,7 +14,7 @@ RUN set -eux; \
 COPY . .
 RUN make bin/anubis-authz
 
-FROM gcr.io/distroless/base-debian10
+FROM alpine
 
 # Indicates basic authorization is enforced
 ARG AUTHORIZER=anubis
@@ -31,7 +31,8 @@ COPY authz/policy-anubis.yaml /var/lib/anubis/policy.yaml
 VOLUME /run/docker/plugins/
 
 COPY --from=build /build/bin/anubis-authz /usr/bin/anubis-authz
+RUN adduser -D -u 1001 anubis 
 
-USER nonroot:nonroot
+USER anubis
 ENTRYPOINT ["/usr/bin/anubis-authz"]
 CMD ["--policy", "/var/lib/anubis/policy.yaml"]
