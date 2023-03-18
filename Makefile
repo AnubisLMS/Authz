@@ -1,8 +1,9 @@
 IMAGE_NAME ?= registry.digitalocean.com/anubis/anubis-authz
 PACKAGES=$(shell go list ./...)
 SRCS = $(shell git ls-files '*.go' | grep -v '^vendor/')
+GIT_TAG ?= $(shell git log -1 --pretty=%h)
 
-export VERSION ?= v1.0.0
+export GIT_TAG
 export IMAGE_VERSION ?= $(VERSION)
 export CGO_ENABLED=off
 export GO111MODULE=on
@@ -18,11 +19,11 @@ fmt:
 	gofmt -w $(SRCS)
 
 build:
-	docker build -t ${IMAGE_NAME}:${IMAGE_VERSION} .
-	docker tag ${IMAGE_NAME}:${IMAGE_VERSION} ${IMAGE_NAME}:latest
+	docker build -t ${IMAGE_NAME}:${GIT_TAG} .
+	docker tag ${IMAGE_NAME}:${GIT_TAG} ${IMAGE_NAME}:latest
 
 push:
-	docker push ${IMAGE_NAME}:${IMAGE_VERSION}
+	docker push ${IMAGE_NAME}:${GIT_TAG}
 	docker push ${IMAGE_NAME}:latest
 
 deploy: build push

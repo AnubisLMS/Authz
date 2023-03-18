@@ -1,0 +1,42 @@
+name: Anubis Main CD/CI
+
+on:
+  push:
+    branches: [ main ]
+  workflow_dispatch:
+
+jobs:
+
+  test:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v3
+    - name: Set up Go
+      uses: actions/setup-go@v3
+      with:
+        go-version: '1.20'
+        cache-dependency-path: go.sum
+    - name: Version
+      run: go version
+    - name: Build
+      run: make
+    - name: Test
+      run: make test
+
+  deploy:
+    name: Deploy
+    needs: [test]
+    runs-on: ubuntu-latest
+    environment: anubis
+    steps:
+      - uses: actions/checkout@v2
+      - name: Install doctl
+        uses: digitalocean/action-doctl@v2
+        with:
+          token: ${{ secrets.DIGITALOCEAN_ACCESS_TOKEN }}
+      - name: Log into DigitalOcean container registry
+        run: doctl registry login
+      - name: Build container image
+        run: make build
+      - name: Build container image
+        run: make push
