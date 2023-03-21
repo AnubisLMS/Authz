@@ -117,7 +117,7 @@ func parseAction(authZReq *authorization.Request) (string, error) {
 	if err != nil {
 		return "", errors.New(fmt.Sprintf("invalid request URI: %s", err.Error()))
 	}
-	fmt.Println("query:", url.Query())
+	fmt.Println("query:", url.Query(), reflect.TypeOf(url.Query()))
 	return core.ParseRoute(authZReq.RequestMethod, url.Path), nil
 }
 
@@ -167,6 +167,55 @@ func CheckBody(authzBody map[string]interface{}, policyBody map[string]interface
 	}
 	return true, ""
 }
+
+// func CheckArgs(query *url.Values, policyArgs map[string]interface{}, chain string) (bool, string) {
+
+// 	for k, policyV := range policyArgs {
+// 		msg := chain + "." + k
+
+// 		if query.Has(k) {
+// 			authV := query.Get(k)
+// 			switch policyV.(type) {
+// 			case map[string]interface{}:
+// 				check, msg := CheckBody(authzV.(map[string]interface{}), policyV.(map[string]interface{}), msg)
+// 				if !check {
+// 					return false, msg
+// 				}
+// 			default:
+// 				if policyV == nil {
+// 					switch authzV {
+// 					case nil:
+// 						continue
+// 					case 0:
+// 						continue
+// 					case false:
+// 						continue
+// 					default:
+// 						rt := reflect.TypeOf(authzV)
+// 						switch rt.Kind() {
+// 						case reflect.Array, reflect.Slice:
+// 							l := reflect.ValueOf(authzV).Len()
+// 							fmt.Println("l =", l)
+// 							if l != 0 {
+// 								logrus.Errorf("Failing on value not matching %s %v != %v", msg, policyV, authzV)
+// 								return false, fmt.Sprintf("%s != %v", msg, policyV)
+// 							}
+// 						default:
+// 							logrus.Errorf("Failing on value not matching %s %v != %v", msg, policyV, authzV)
+// 							return false, fmt.Sprintf("%s != %v", msg, policyV)
+// 						}
+// 					}
+// 				} else {
+// 					if policyV != authzV {
+// 						logrus.Errorf("Failing on value not matching %s %v != %v", msg, policyV, authzV)
+// 						return false, fmt.Sprintf("%s != %v", msg, policyV)
+// 					}
+// 				}
+// 			}
+// 		}
+// 	}
+// 	return true, ""
+// }
 
 func CheckPolicy(authZReq *authorization.Request, policies []AnubisPolicy, action string) (bool, string) {
 	noPolicyMsg := fmt.Sprintf("no policy applied (action: '%s')", action)
