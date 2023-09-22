@@ -37,9 +37,9 @@
           # Net
           PublishAllPorts: null
           #NetworkMode: "default"
-          Dns: null
-          DnsOptions: null
-          DnsSearch: null
+          # Dns: null
+          # DnsOptions: null
+          # DnsSearch: null
           ExtraHosts: null
           
           # Cgroup related
