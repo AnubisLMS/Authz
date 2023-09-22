@@ -10,6 +10,7 @@
     - name: image_create
     - name: image_build
     - name: image_push
+    - name: image_inspect
     - name: container_list
     - name: container_create
       body:
