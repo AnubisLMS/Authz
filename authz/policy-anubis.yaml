@@ -60,8 +60,8 @@
           NanoCpus: 0
           Memory: 0
           MemoryReservations: 0
-          MemorySwap: 0
-          MemorySwappiness: -1
+          # MemorySwap: 0
+          # MemorySwappiness: -1
           ShmSize: 0
           OomKillDisable: null
           IOMaximumIOps: 0
