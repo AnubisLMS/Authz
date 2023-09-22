@@ -12,6 +12,9 @@
     - name: image_push
     - name: image_inspect
     - name: container_list
+    - name: network_list
+    - name: network_create
+    - name: network_delete
     - name: container_create
       body:
         HostConfig:
