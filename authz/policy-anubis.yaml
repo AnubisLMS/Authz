@@ -17,6 +17,7 @@
     - name: network_delete
     - name: volume_inspect
     - name: volume_create
+    - name: container_exec_create
     - name: container_create
       body:
         HostConfig:
