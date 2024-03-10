@@ -2,6 +2,7 @@
   actions:
     - name: version
     - name: docker_ping
+    - name: docker_info
     - name: container_attach
     - name: container_resize
     - name: container_wait
